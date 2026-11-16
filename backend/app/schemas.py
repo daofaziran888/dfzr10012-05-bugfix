@@ -26,6 +26,10 @@ class EntryPayload(BaseModel):
 
     values: dict[str, Any] = Field(default_factory=dict)
     remark: str | None = None
+    action: str | None = None  # 动作入口：兼容前端顶层 action 与 values.action 两种写法
+
+    def action_name(self) -> str:
+        return str(self.action or self.values.get("action") or "").strip()
 
 
 

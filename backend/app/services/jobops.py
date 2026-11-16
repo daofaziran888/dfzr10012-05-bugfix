@@ -1,8 +1,12 @@
-"""流作业运维业务规则：状态流转、字段校验与筛选口径都收在这里。"""
+"""流作业运维业务规则：状态流转、字段校验与筛选口径都收在这里。
+
+作业实例动作生效后，同步写入同一份算子执行数据存档并带入统一版本号。
+"""
 from __future__ import annotations
 
 from typing import Any
 
+from app.services.operator_archive import archive_service
 from app.store import store
 
 MODULE = "jobops"
@@ -58,4 +62,6 @@ class JobopsService:
         entry["status"] = target
         entry["pending"] = target != STATUS_ORDER[-1]
         entry["abnormal"] = action in NEGATIVE_ACTIONS
+        # 同步写入同一份算子执行数据存档，写入侧带入统一版本号。
+        archive_service.sync_job_snapshot(entry)
         return entry, f"作业实例已{action}"
